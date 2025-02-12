@@ -1,13 +1,13 @@
 # camera_ros in Docker on a RPi5 via Rasbian Bookworm 64bit lite
 
-An example of how to use `camera_ros` with Raspberry Pi Cameras modules inside an arm64v8/ros:jazzy docker container, running on top of Raspbian OS 64bit Lit (Bookworm).
+An example of how to use [`camera_ros`](https://github.com/christianrauch/camera_ros/) with Raspberry Pi Cameras modules inside an arm64v8/ros:jazzy docker container, running on top of Raspbian OS 64bit Lite (Bookworm).
 
 The example builds and installs raspberrypi's fork of libcamera for support of Raspberry Pi camera modules.
 
 ## Requirements
 
 - Raspberry Pi 5 (4BG Model tested)
-- Raspberry OS 64Bit Lite (Bookworm)
+- Rasbian OS 64Bit Lite (Bookworm)
 - Docker
 
 ### Tested Cameras
@@ -15,6 +15,10 @@ The example builds and installs raspberrypi's fork of libcamera for support of R
 - Raspberry Pi NoIR Cam (ov5647)
 
 Note: In my testing I did not need to change any parameters in `/boot/firmware/config.txt` on the host OS.
+
+### References
+ - https://github.com/christianrauch/camera_ros/
+ - https://github.com/raspberrypi/libcamera/
 
 ## Setup
 
