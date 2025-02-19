@@ -11,8 +11,9 @@ The example builds and installs raspberrypi's fork of libcamera for support of R
 - Docker
 
 ### Tested Cameras
-- Raspberry Pi Cam rev1.3 (ov5647)
-- Raspberry Pi NoIR Cam (ov5647)
+- Raspberry Pi Cam rev1.3 (OV5647)
+- Raspberry Pi NoIR Cam (OV5647)
+- Raspberry Pi Camera 3 (IMX708) - thanks to @dbaldwin for reporting
 
 Note: In my testing I did not need to change any parameters in `/boot/firmware/config.txt` on the host OS.
 
