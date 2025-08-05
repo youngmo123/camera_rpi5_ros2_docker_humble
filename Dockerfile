@@ -1,5 +1,5 @@
 
-FROM arm64v8/ros:jazzy
+FROM arm64v8/ros:humble
 
 SHELL ["/bin/bash", "-c"]
 
