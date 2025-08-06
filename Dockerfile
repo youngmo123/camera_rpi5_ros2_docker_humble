@@ -1,76 +1,56 @@
 FROM ros:humble
 
-SHELL ["/bin/bash", "-c"]
+RUN apt update && apt install -y --no-install-recommends gnupg
 
-# 필수 패키지 설치
+RUN apt update && apt -y upgrade
+
 RUN apt update && apt install -y --no-install-recommends \
-    gnupg \
-    git \
-    python3-pip \
-    python3-jinja2 \
-    python3-yaml \
-    python3-ply \
-    libboost-dev \
-    libgnutls28-dev \
-    openssl \
-    libtiff-dev \
-    pybind11-dev \
-    meson \
-    cmake \
-    ninja-build \
-    libglib2.0-dev \
-    libgstreamer-plugins-base1.0-dev \
-    libevent-dev \
-    libdrm-dev \
-    libcap-dev \
-    python3-opencv \
- && apt-get clean \
- && apt-get autoremove \
- && rm -rf /var/cache/apt/archives/* \
- && rm -rf /var/lib/apt/lists/*
+        meson \
+	ninja-build \
+	pkg-config \
+	libyaml-dev \
+	python3-yaml \
+	python3-ply \
+	python3-jinja2 \
+	libevent-dev \
+	libdrm-dev \
+	libcap-dev \
+	python3-pip \
+	python3-opencv \
+     && apt-get clean \
+     && apt-get autoremove \
+     && rm -rf /var/cache/apt/archives/* \
+     && rm -rf /var/lib/apt/lists/*
 
-# 작업 디렉토리
 WORKDIR /app
 
-# libcamera 설치
-RUN git clone https://github.com/raspberrypi/libcamera.git \
- && cd libcamera \
- && git checkout 6ddd79b \
- && meson setup build --buildtype=release \
-      -Dpipelines=rpi/vc4,rpi/pisp \
-      -Dipas=rpi/vc4,rpi/pisp \
-      -Dv4l2=true \
-      -Dgstreamer=enabled \
-      -Dtest=false \
-      -Dlc-compliance=disabled \
-      -Dcam=disabled \
-      -Dqcam=disabled \
-      -Ddocumentation=disabled \
-      -Dpycamera=enabled \
- && ninja -C build install \
- && ldconfig
+# Install libcamera from source
+RUN git clone https://github.com/raspberrypi/libcamera.git && cd libcamera && git checkout 6ddd79b && cd ..
+RUN meson setup libcamera/build libcamera/
+RUN ninja -C libcamera/build/ install
 
-# camera_ros 소스 다운로드
+
+# Install kmsxx from source
+RUN git clone https://github.com/tomba/kmsxx.git
+RUN meson setup kmsxx/build kmsxx/
+RUN ninja -C kmsxx/build/ install 
+
+# Add the new installations to the python path so that picamera2 can find them
+ENV PYTHONPATH $PYTHONPATH/usr/local/lib/aarch64-linux-gnu/python3.10/site-packages:/app/kmsxx/build/py
+
+# Finally install picamera2 using pip
+RUN pip3 install picamera2
+
+# Clone and build the camera_ros node
 RUN mkdir -p /app/src \
- && cd /app/src \
- && git clone https://github.com/christianrauch/camera_ros.git
+  && cd /app/src \
+  && git clone https://github.com/christianrauch/camera_ros.git \
+  && source /opt/ros/$ROS_DISTRO/setup.bash \
+  && cd /app \
+  && rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO --skip-keys=libcamera \
+  && colcon build --event-handlers=console_direct+
 
-# ROS2 빌드 및 의존성 처리
-RUN source /opt/ros/humble/setup.bash \
- && cd /app \
- && rosdep update \
- && rosdep install -y --from-paths src --ignore-src \
-      --rosdistro humble \
-      --skip-keys="libcamera ament-cmake-clang-format camera-info-manager" \
- && colcon build --event-handlers=console_direct+
-
-# entrypoint 스크립트 복사
 COPY docker_entrypoint.sh /app/
-RUN chmod +x /app/docker_entrypoint.sh
 
-# PYTHONPATH 환경 설정 (경고 제거용)
-ENV PYTHONPATH="/usr/local/lib/aarch64-linux-gnu/python3.10/site-packages"
-
-# entrypoint 설정
 ENTRYPOINT ["/app/docker_entrypoint.sh"]
 CMD ["bash"]
