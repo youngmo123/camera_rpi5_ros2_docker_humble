@@ -35,6 +35,9 @@ RUN apt update && apt install -y --no-install-recommends \
 	ros-humble-ament-cmake-cppcheck \
 	ros-humble-ament-cmake-lint-cmake \
 	ros-humble-ament-cmake-xmllint \
+	ros-humble-ament-cmake-mypy \
+	ros-humble-ament-cmake-pycodestyle \
+	ros-humble-ament-cmake-pylint \
 	ros-humble-ament-lint-auto \
 	ros-humble-ament-lint-common \
        && apt-get clean \
