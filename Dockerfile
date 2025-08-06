@@ -29,6 +29,7 @@ RUN apt update && apt install -y --no-install-recommends \
  && rm -rf /var/cache/apt/archives/* \
  && rm -rf /var/lib/apt/lists/*
 
+# 작업 디렉토리
 WORKDIR /app
 
 # libcamera 설치
@@ -49,26 +50,27 @@ RUN git clone https://github.com/raspberrypi/libcamera.git \
  && ninja -C build install \
  && ldconfig
 
-# camera_ros 클론
+# camera_ros 소스 다운로드
 RUN mkdir -p /app/src \
  && cd /app/src \
  && git clone https://github.com/christianrauch/camera_ros.git
 
-# colcon 빌드
+# ROS2 빌드 및 의존성 처리
 RUN source /opt/ros/humble/setup.bash \
  && cd /app \
  && rosdep update \
  && rosdep install -y --from-paths src --ignore-src \
       --rosdistro humble \
-      --skip-keys="libcamera ament-cmake-clang-format" \
+      --skip-keys="libcamera ament-cmake-clang-format camera-info-manager" \
  && colcon build --event-handlers=console_direct+
 
 # entrypoint 스크립트 복사
 COPY docker_entrypoint.sh /app/
 RUN chmod +x /app/docker_entrypoint.sh
 
-# PYTHONPATH 환경변수 명시적으로 설정
+# PYTHONPATH 환경 설정 (경고 제거용)
 ENV PYTHONPATH="/usr/local/lib/aarch64-linux-gnu/python3.10/site-packages"
 
+# entrypoint 설정
 ENTRYPOINT ["/app/docker_entrypoint.sh"]
 CMD ["bash"]
