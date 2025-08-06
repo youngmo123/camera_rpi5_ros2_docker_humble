@@ -22,6 +22,14 @@ RUN apt update && apt install -y --no-install-recommends \
 	libcap-dev \
 	python3-pip \
 	python3-opencv \
+	ros-humble-camera-info-manager \
+	ros-humble-cv-bridge \
+	ros-humble-sensor-msgs \
+	ros-humble-std-msgs \
+	ros-humble-image-transport \
+	ros-humble-image-transport-plugins \
+	ros-humble-camera-calibration-parsers \
+	ros-humble-camera-calibration \
        && apt-get clean \
        && apt-get autoremove \
        && rm -rf /var/cache/apt/archives/* \
