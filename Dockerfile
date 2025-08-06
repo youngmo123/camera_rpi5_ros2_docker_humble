@@ -30,6 +30,13 @@ RUN apt update && apt install -y --no-install-recommends \
 	ros-humble-image-transport-plugins \
 	ros-humble-camera-calibration-parsers \
 	ros-humble-camera-calibration \
+	ros-humble-ament-cmake-clang-format \
+	ros-humble-ament-cmake-copyright \
+	ros-humble-ament-cmake-cppcheck \
+	ros-humble-ament-cmake-lint-cmake \
+	ros-humble-ament-cmake-xmllint \
+	ros-humble-ament-lint-auto \
+	ros-humble-ament-lint-common \
        && apt-get clean \
        && apt-get autoremove \
        && rm -rf /var/cache/apt/archives/* \
