@@ -26,9 +26,9 @@ Note: In my testing I did not need to change any parameters in `/boot/firmware/c
 Clone this repo and make sure `docker-run.sh` is executable.
 
 ```
-git clone git@github.com:se1exin/camera_ros-in-docker-rpi5.git
+git clone https://github.com/youngmo123/camera_rpi5_ros2_docker_humble.git
 
-cd camera_ros-in-docker-rpi5
+cd camera_rpi5_ros2_docker_humble/
 
 chmod +x docker-run.sh
 
@@ -38,7 +38,7 @@ chmod +x docker-run.sh
 From the command line on your raspberry pi, run the following to build the container with the tag `camera_ros`:
 
 ```
-docker build -t camera_ros .
+docker build -t camera_ros_humble .
 ```
 
 ## Run
