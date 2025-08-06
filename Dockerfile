@@ -37,7 +37,6 @@ RUN apt update && apt install -y --no-install-recommends \
 	ros-humble-ament-cmake-xmllint \
 	ros-humble-ament-cmake-mypy \
 	ros-humble-ament-cmake-pycodestyle \
-	ros-humble-ament-cmake-pylint \
 	ros-humble-ament-lint-auto \
 	ros-humble-ament-lint-common \
        && apt-get clean \
@@ -67,7 +66,7 @@ RUN mkdir -p /app/src \
   && git clone https://github.com/christianrauch/camera_ros.git \
   && source /opt/ros/humble/setup.bash \
   && cd /app \
-  && rosdep install -y --from-paths src --ignore-src --rosdistro humble --skip-keys=libcamera \
+  && rosdep install -y --from-paths src --ignore-src --rosdistro humble --skip-keys=libcamera,ament-cmake-pylint,ament-cmake-mypy \
   && colcon build --event-handlers=console_direct+
 
 COPY docker_entrypoint.sh /app/
