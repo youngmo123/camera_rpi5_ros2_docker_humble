@@ -2,7 +2,7 @@ FROM ros:humble
 
 SHELL ["/bin/bash", "-c"]
 
-# 기본 패키지 설치
+# 필수 패키지 설치
 RUN apt update && apt install -y --no-install-recommends \
     gnupg \
     git \
@@ -31,37 +31,44 @@ RUN apt update && apt install -y --no-install-recommends \
 
 WORKDIR /app
 
-# =============================
-# libcamera 설치 (라즈베리파이 공식 소스)
-# =============================
+# libcamera 설치
 RUN git clone https://github.com/raspberrypi/libcamera.git \
  && cd libcamera \
  && git checkout 6ddd79b \
- && meson setup build --buildtype=release -Dpipelines=rpi/vc4,rpi/pisp -Dipas=rpi/vc4,rpi/pisp -Dv4l2=true -Dgstreamer=enabled -Dtest=false -Dlc-compliance=disabled -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=enabled \
+ && meson setup build --buildtype=release \
+      -Dpipelines=rpi/vc4,rpi/pisp \
+      -Dipas=rpi/vc4,rpi/pisp \
+      -Dv4l2=true \
+      -Dgstreamer=enabled \
+      -Dtest=false \
+      -Dlc-compliance=disabled \
+      -Dcam=disabled \
+      -Dqcam=disabled \
+      -Ddocumentation=disabled \
+      -Dpycamera=enabled \
  && ninja -C build install \
  && ldconfig
 
-# =============================
-# camera_ros 패키지 빌드
-# =============================
+# camera_ros 클론
 RUN mkdir -p /app/src \
  && cd /app/src \
  && git clone https://github.com/christianrauch/camera_ros.git
 
-# ROS2 빌드 준비
-RUN source /opt/ros/$ROS_DISTRO/setup.bash \
+# colcon 빌드
+RUN source /opt/ros/humble/setup.bash \
  && cd /app \
  && rosdep update \
- && rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO --skip-keys=libcamera \
- && . /opt/ros/$ROS_DISTRO/setup.bash \
+ && rosdep install -y --from-paths src --ignore-src \
+      --rosdistro humble \
+      --skip-keys="libcamera ament-cmake-clang-format" \
  && colcon build --event-handlers=console_direct+
 
-# 엔트리포인트 스크립트 복사
+# entrypoint 스크립트 복사
 COPY docker_entrypoint.sh /app/
 RUN chmod +x /app/docker_entrypoint.sh
 
-# 환경변수 설정
-ENV PYTHONPATH=$PYTHONPATH:/usr/local/lib/aarch64-linux-gnu/python3.10/site-packages
+# PYTHONPATH 환경변수 명시적으로 설정
+ENV PYTHONPATH="/usr/local/lib/aarch64-linux-gnu/python3.10/site-packages"
 
 ENTRYPOINT ["/app/docker_entrypoint.sh"]
 CMD ["bash"]
